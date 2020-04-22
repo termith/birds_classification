@@ -31,8 +31,8 @@ if __name__ == '__main__':
 
         for filename in os.listdir(src/folder):
             if random.randint(0, 100) < int(args.validation_size):
-                shutil.move(src/folder/filename, class_valid_folder/filename)
+                shutil.copy(src/folder/filename, class_valid_folder/filename)
             else:
-                shutil.move(src/folder/filename, class_train_folder/filename)
+                shutil.copy(src/folder/filename, class_train_folder/filename)
 
     shutil.rmtree(src)
