@@ -10,11 +10,22 @@ Each image contains a single bounding box label.  Bounding box labels are contai
 
 where <image_id> corresponds to the ID in images.txt, and <x>, <y>, <width>, and <height> are all measured in pixels
 """
-import os
 import pathlib
 import argparse
 
 from PIL import Image
+
+
+def crop_images(ids_file, data_path, bb_file):
+    with open(bb_file, 'r') as f:
+        # boundaries for image_id = boundaries[image_id - 1]
+        boundaries = [tuple(map(float, line.split())) for line in f.readlines()]
+    with open(ids_file) as idf:
+        for line in idf.readlines():
+            id_, image_file = line.split()
+            image_path = pathlib.Path(data_path)/image_file
+            _, x, y, w, h = boundaries[int(id_)-1]
+            Image.open(image_path).crop((x, y, x+w, y+h)).save(image_path)
 
 
 if __name__ == '__main__':
@@ -25,12 +36,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    with open(args.bb_file, 'r') as f:
-        # boundaries for image_id = boundaries[image_id - 1]
-        boundaries = [tuple(map(float, line.split())) for line in f.readlines()]
-    with open(args.ids_file) as idf:
-        for line in idf.readlines():
-            id_, image_file = line.split()
-            image_path = pathlib.Path(args.data_path)/image_file
-            _, x, y, w, h = boundaries[int(id_)-1]
-            Image.open(image_path).crop((x, y, x+w, y+h)).save(image_path)
+    crop_images(args.ids_file, args.data_path, args.bb_file)
+

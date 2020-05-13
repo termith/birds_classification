@@ -5,20 +5,14 @@ import pathlib
 import argparse
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', help='Path to the data')
-    parser.add_argument('--dest', help='Destination of new dataset')
-    parser.add_argument('--validation_size', help='Validation set percent')
-    args = parser.parse_args()
-
-    dst = pathlib.Path(args.dest)
+def move_images(dest, data_path, validation_size):
+    dst = pathlib.Path(dest)
     train_folder = dst / 'train'
     os.makedirs(train_folder, exist_ok=True)
     valid_folder = dst / 'validation'
     os.makedirs(valid_folder, exist_ok=True)
 
-    src = pathlib.Path(args.data_path)
+    src = pathlib.Path(data_path)
     for folder in os.listdir(src):
         if str(folder).startswith('.'):
             continue
@@ -30,9 +24,20 @@ if __name__ == '__main__':
         os.makedirs(class_valid_folder, exist_ok=True)
 
         for filename in os.listdir(src/folder):
-            if random.randint(0, 100) < int(args.validation_size):
+            if random.randint(0, 100) < int(validation_size):
                 shutil.copy(src/folder/filename, class_valid_folder/filename)
             else:
                 shutil.copy(src/folder/filename, class_train_folder/filename)
 
     shutil.rmtree(src)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_path', help='Path to the data')
+    parser.add_argument('--dest', help='Destination of new dataset')
+    parser.add_argument('--validation_size', help='Validation set percent')
+    args = parser.parse_args()
+
+    move_images(args.dest, args.data_path, args.validation_size)
+
