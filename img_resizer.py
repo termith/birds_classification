@@ -16,9 +16,7 @@ import argparse
 from PIL import Image
 
 
-def crop_images(ids_file, data_path, bb_file):
-    max_width = 0
-    max_height = 0
+def resize_images(ids_file, data_path, bb_file, size):
     with open(bb_file, 'r') as f:
         # boundaries for image_id = boundaries[image_id - 1]
         boundaries = [tuple(map(float, line.split())) for line in f.readlines()]
@@ -27,12 +25,7 @@ def crop_images(ids_file, data_path, bb_file):
             id_, image_file = line.split()
             image_path = pathlib.Path(data_path)/image_file
             _, x, y, w, h = boundaries[int(id_)-1]
-            if w > max_width:
-                max_width = w
-            if h > max_height:
-                max_height = h
-            Image.open(image_path).crop((x, y, x+w, y+h)).save(image_path)
-    print(f'Max width: {max_width}, max height: {max_height}')
+            Image.open(image_path).resize((size, size), box=(x, y, x+w, y+h)).save(image_path)
 
 
 if __name__ == '__main__':
@@ -40,8 +33,9 @@ if __name__ == '__main__':
     parser.add_argument('--ids_file', help='Path to file with images id mapping')
     parser.add_argument('--data_path', help='Path to images')
     parser.add_argument('--bb_file', help='Path to file with bounding boxes attributes')
+    parser.add_argument('--size', help='Target image size')
 
     args = parser.parse_args()
 
-    crop_images(args.ids_file, args.data_path, args.bb_file)
+    resize_images(args.ids_file, args.data_path, args.bb_file, args.size)
 
